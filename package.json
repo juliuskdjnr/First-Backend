@@ -8,7 +8,7 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "description": "",
+  "description": "First Backend FIle!",
   "dependencies": {
     "express": "^5.1.0"
   }
