@@ -1,4 +1,4 @@
-# My First Backend API with Node.js & Express 🚀
+# My First Backend API with Node.js & Express 
 
 This project is a beginner-friendly backend server built using **Node.js** and **Express.js**. It simulates a basic API that returns JSON data for users, products, and blog posts.
 
