@@ -27,9 +27,9 @@ This project is a beginner-friendly backend server built using **Node.js** and *
 6. GET /api/products/:id
 
 ## Tech Stack
-. Node.js
-. Express.js
-. JavaScript
+1. Node.js
+2. Express.js
+3. JavaScript
 
 ## Author
 Built with focus and grit by Julius Jnr. Kog-Der
