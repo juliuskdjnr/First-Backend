@@ -1,3 +1,5 @@
+const jwt = require('jsonwebtoken');
+// This line imports the jsonwebtoken library, which is used for creating and verifying JSON Web Tokens.
 const express = require('express');
 const app = express();
 // This is the main file for your Express backend server.
@@ -7,7 +9,32 @@ app.use(express.json());
 // It is essential for handling data sent in the body of requests, especially for POST requests.
 // Importing the express module and creating an instance of it.
 // This middleware tells Express "If the incoming request has JSON data, make it available as req.body".
+const JWT_SECRET = 'mySuperSecretKey123'; // In real apps, use environment variables
+// This is a secret key used for signing and verifying JWTs.
+// In a production application, you should store this key in an environment variable for security.
 
+function verifyToken(req, res, next) {
+  const authHeader = req.headers['authorization'];
+
+  // Expected format: "Bearer <token>"
+  const token = authHeader && authHeader.split(' ')[1];
+
+  if (!token) {
+    return res.status(401).json({ message: 'Access denied. No token provided.' });
+  }
+
+  try {
+    const decoded = jwt.verify(token, JWT_SECRET);
+    req.user = decoded; // attach decoded user to request
+    next();
+  } catch (err) {
+    res.status(403).json({ message: 'Invalid or expired token.' });
+  }
+}
+// This function verifies the JWT token sent in the request headers.
+// If the token is valid, it decodes the user information and attaches it to the request.
+
+// Middleware to log requests
 // Route: Home Page
 app.get('/', (req, res) => {
   res.send('Welcome to your first Express backend!');
@@ -135,11 +162,27 @@ app.post('/api/login', (req, res) => {
     }
 
     if (username === user.username && password === user.password) {
-        return res.json({ message: 'Login successful!', username: 'juliuskdjnr' });
+        // Generate token
+        const token = jwt.sign({ username }, JWT_SECRET, { expiresIn: '1h' }); // Sign the token with the secret key and set it to expire in 1 hour.
+        // This line creates a JWT token that includes the username and is signed with the secret key.
+        // You return the token to the frontend — it can store it and attach it to future requests.
+        return res.json({
+            message: 'Login successful!',
+            token
+        });
     } else {
         return res.status(401).json({ message: 'Invalid username or password' });
     }
 });
+
+app.get('/api/secret', verifyToken, (req, res) => {
+  res.json({
+    message: `Welcome, ${req.user.username}! This is a protected route.`,
+    user: req.user
+  });
+});
+// This route is protected by the verifyToken middleware.
+// It can only be accessed if a valid JWT token is provided in the request headers.
 
 // Start server
 app.listen(3000, () => {
