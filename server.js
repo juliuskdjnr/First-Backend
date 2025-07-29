@@ -1,3 +1,7 @@
+const Product = require('./models/Product');
+// This line imports the Product model defined in models/Product.js.
+const mongoose = require('mongoose');
+// This line imports the mongoose library, which is used for interacting with MongoDB databases.
 const jwt = require('jsonwebtoken');
 // This line imports the jsonwebtoken library, which is used for creating and verifying JSON Web Tokens.
 const express = require('express');
@@ -33,6 +37,15 @@ function verifyToken(req, res, next) {
 }
 // This function verifies the JWT token sent in the request headers.
 // If the token is valid, it decodes the user information and attaches it to the request.
+
+mongoose.connect('mongodb+srv://juliuskdjnr:Zanuviel1.@backendcluster.elnctz8.mongodb.net/?retryWrites=true&w=majority&appName=BackendCluster', {
+  useNewUrlParser: true,
+  useUnifiedTopology: true
+})
+.then(() => console.log('✅ Connected to MongoDB'))
+.catch((err) => console.error('❌ MongoDB connection error:', err));
+// This connects to a MongoDB database using Mongoose.
+
 
 // Middleware to log requests
 // Route: Home Page
@@ -87,64 +100,82 @@ let products = [
 // Array acting as a mini-database for products.
 
 // GET all products
-app.get('/api/products', (req, res) => {
-  res.json(products);
+app.get('/api/products/:id', async (req, res) => {
+  try {
+    const product = await Product.findById(req.params.id);
+    if (!product) return res.status(404).json({ error: 'Product not found' });
+    res.json(product);
+  } catch (err) {
+    res.status(400).json({ error: 'Invalid ID format' });
+  }
 });
+// This route retrieves a product by its ID from the database using the Product model.
+
+app.get('/api/products', async (req, res) => {
+  try {
+    const products = await Product.find();
+    res.json(products);
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to fetch products' });
+  }
+});
+// This route retrieves all products from the database using the Product model.
 
 // POST: Add a new product
-app.post('/api/products', (req, res) => {
-  const newProduct = req.body;
+const authenticateToken = require('./middleware/auth'); // if not already included
 
-  if (!newProduct.name || !newProduct.price) {
-    return res.status(400).json({ message: 'Name and price are required' });
+app.post('/api/products', authenticateToken, async (req, res) => {
+  try {
+    const newProduct = new Product({
+      name: req.body.name,
+      price: req.body.price,
+      user: req.user.id  // attach the authenticated user ID
+    });
+
+    const savedProduct = await newProduct.save();
+    res.status(201).json(savedProduct);
+  } catch (err) {
+    console.error('Product creation error:', err);
+    res.status(400).json({ error: 'Failed to create product', details: err.message });
   }
-
-  newProduct.id = products.length + 1; // Auto-generate an ID
-  products.push(newProduct);
-
-  res.status(201).json({
-    message: 'Product added successfully!',
-    product: newProduct
-  });
 });
+
+
 
 // PUT Request
 // Update a product by ID
-app.put('/api/products/:id', (req, res) => {
-    const id = parseInt(req.params.id);
-    const product = products.find(p => p.id === id);
-
-    if (!products) {
-        return res.status(404).json({ message: 'Product not found' });
-    }
-
-    const { name, price } = req.body;
-    if (name) product.name = name;
-    if (price) product.price = price;
-
-    res.json({
-        message: 'Product updated successfully!', 
-        product 
-    });
+app.put('/api/products/:id', async (req, res) => {
+  try {
+    const updated = await Product.findByIdAndUpdate(
+      req.params.id,
+      req.body,
+      { new: true, runValidators: true }
+    );
+    if (!updated) return res.status(404).json({ error: 'Product not found' });
+    res.json(updated);
+  } catch (err) {
+    res.status(400).json({ error: 'Update failed' });
+  }
 });
+
 
 // DELETE Request 
 // Remove a product by ID
-app.delete('/api/products/:id', (req, res) => {
-  const id = parseInt(req.params.id);
-  const index = products.findIndex(p => p.id === id);
+app.delete('/api/products/:id', authenticateToken, async (req, res) => {
+  try {
+    const product = await Product.findById(req.params.id);
 
-  if (index === -1) {
-    return res.status(404).json({ message: 'Product not found' });
+    if (!product || product.user.toString() !== req.user.id) {
+      return res.status(403).json({ error: 'Not allowed to delete this product' });
+    }
+
+    await product.deleteOne();
+    res.json({ message: 'Product deleted' });
+  } catch (err) {
+    res.status(400).json({ error: 'Delete failed' });
   }
-
-  const deletedProduct = products.splice(index, 1);
-
-  res.json({
-    message: 'Product deleted successfully!',
-    deletedProduct
-  });
 });
+
 
 // Route: Login API
 const user = {
