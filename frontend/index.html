@@ -22,7 +22,7 @@
 
     // Fetch products
     async function fetchProducts() {
-      const res = await fetch('http://localhost:5000/api/products');
+      const res = await fetch('http://localhost:3000/api/products');
       const products = await res.json();
 
       productList.innerHTML = '';
@@ -54,5 +54,27 @@
 
     fetchProducts(); // Calls the function to load products when the page loads.
   </script>
+  <script>
+  // Wait until the page loads
+  document.addEventListener('DOMContentLoaded', async () => {
+    const productList = document.getElementById('product-list');
+
+    try {
+      // Fetch products from your backend
+      const res = await fetch('http://localhost:3000/api/products');
+      const products = await res.json();
+
+      // Loop through each product and display it
+      products.forEach(product => {
+        const item = document.createElement('li');
+        item.textContent = `${product.name} - $${product.price}`;
+        productList.appendChild(item);
+      });
+    } catch (err) {
+      console.error('Error fetching products:', err);
+      productList.innerHTML = '<li style="color: red;">Failed to load products.</li>';
+    }
+  });
+</script>
 </body>
 </html>
