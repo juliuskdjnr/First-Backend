@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Product App</title>
+</head>
+<body>
+  <h1>Product List</h1>
+  <ul id="productList"></ul>
+
+  <h2>Add Product</h2>
+  <form id="productForm">
+    <input type="text" id="name" placeholder="Product name" required />
+    <input type="number" id="price" placeholder="Price" required />
+    <button type="submit">Add</button>
+  </form>
+
+  <script>
+    const productList = document.getElementById('productList');
+    const productForm = document.getElementById('productForm');
+
+    // Fetch products
+    async function fetchProducts() {
+      const res = await fetch('http://localhost:5000/api/products');
+      const products = await res.json();
+
+      productList.innerHTML = '';
+      products.forEach(p => {
+        const li = document.createElement('li');
+        li.textContent = `${p.name} - ₵${p.price}`;
+        productList.appendChild(li);
+      });
+    }
+
+    productForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const name = document.getElementById('name').value;
+      const price = document.getElementById('price').value;
+
+      const res = await fetch('http://localhost:5000/api/products', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, price })
+      });
+
+      const data = await res.json();
+      console.log('Created:', data);
+
+      productForm.reset();
+      fetchProducts(); // reload list
+    });
+
+    fetchProducts(); // Calls the function to load products when the page loads.
+  </script>
+</body>
+</html>
