@@ -20,7 +20,7 @@ app.get('/', (req, res) => {
 
 // Route: About Page
 app.get('/about', (req, res) => {
-  res.send('This is the about page.\nSee this as the version 1.0 of my backend API building journey!');
+  res.send('This is the about page.\nSee this as the version 1.0 of my backend API building journey!\nOh, and welcome!' );
 });
 
 app.get('/api/user', (req, res) => {
