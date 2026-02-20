@@ -1,3 +1,15 @@
+import express from "express";
+import cors from "cors";
+import dotenv from "dotenv";
+import connectDB from "./config/db.js";
+import authRoutes from "./routes/auth.js";
+import productRoutes from "./routes/products.js";
+
+dotenv.config();
+connectDB();
+
+app.use("/api/auth", authRoutes);
+app.use("/api/products", productRoutes);
 const express = require('express');
 const app = express();
 // This is the main file for your Express backend server.
