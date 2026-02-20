@@ -10,6 +10,7 @@ connectDB();
 
 app.use("/api/auth", authRoutes);
 app.use("/api/products", productRoutes);
+
 const express = require('express');
 const app = express();
 // This is the main file for your Express backend server.
