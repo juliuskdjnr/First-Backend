@@ -26,16 +26,16 @@ app.use(express.json());
 // This middleware tells Express "If the incoming request has JSON data, make it available as req.body".
 
 // Route: Home Page
-app.get('/', (req, res) => {
+app.get('/', (_, res) => {
   res.send('Welcome to your first Express backend!');
 });
 
 // Route: About Page
-app.get('/about', (req, res) => {
+app.get('/about', (_, res) => {
   res.send('This is the about page.\nSee this as the version 1.0 of my backend API building journey!\nOh, and welcome!' );
 });
 
-app.get('/api/user', (req, res) => {
+app.get('/api/user', (_, res) => {
     res.json({
         id: 1,
         name: 'Julius Jnr. Kog-Der',
@@ -48,22 +48,23 @@ app.get('/api/user', (req, res) => {
 // REST API = a way to structure your server so it can handle different requests and send back data in a standard format.
 // Think of this as a way to provide information about a user in a structured format that other applications can understand.
 
-app.get('/api/ideas', (req, res) => {
+app.get('/api/ideas', (_, res) => {
     res.json({
         Later: 'Build a bag producing company',
         Immediate: 'Build a computerized system.',
     });
 });
 
-app.get('/api/products/:id', (req, res) => {
+app.get('/api/products/:id', (req, _) => {
     const products = [
         { id: 1, name: 'Backpack', price: 120 },
         { id: 2, name: 'Laptop Stand', price: 85 },
         { id: 3, name: 'Notebook', price: 20 }
     ];
+    res.json(products);
 });
 
-app.get('/trips', (req, res) => {
+app.get('/trips', (_, res) => {
     const trips = [
         { travel_route: 'Wa - Nandom - Burkina Faso' },
         { duration: '2 days' },
@@ -84,7 +85,7 @@ let products = [
 // Array acting as a mini-database for products.
 
 // GET all products
-app.get('/api/products', (req, res) => {
+app.get('/api/products', (_, res) => {
   res.json(products);
 });
 
