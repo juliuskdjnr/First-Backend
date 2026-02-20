@@ -11,11 +11,9 @@ connectDB();
 app.use("/api/auth", authRoutes);
 app.use("/api/products", productRoutes);
 
-const express = require('express');
 const app = express();
 // This is the main file for your Express backend server.
 // It sets up the server, defines routes, and starts listening for requests.
-const cors = require('cors');
 app.use(cors());
 // This line allows your server to accept requests from different origins (like a web app running on a different domain).
 // CORS = Cross-Origin Resource Sharing, which is a security feature that allows or restricts resources requested from another domain.
